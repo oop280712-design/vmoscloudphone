@@ -45,23 +45,7 @@ jobs:
             redroid.height=1280 \
             redroid.fps=60
 
-      - name: 5. Wait for Android & Spoof Device Identity
-        run: |
-          sudo apt update && sudo apt install -y android-tools-adb
-          echo "Waiting for Android container to initialize..."
-          sleep 25
-          adb connect 127.0.0.1:5555 || true
-          sleep 5
-          adb -s 127.0.0.1:5555 shell "setprop ro.product.model 'SM-S918B'" || true
-          adb -s 127.0.0.1:5555 shell "setprop ro.product.brand 'samsung'" || true
-          adb -s 127.0.0.1:5555 shell "setprop ro.product.name 'e3q'" || true
-          adb -s 127.0.0.1:5555 shell "setprop ro.product.device 'e3q'" || true
-          adb -s 127.0.0.1:5555 shell "setprop ro.product.manufacturer 'samsung'" || true
-          RANDOM_ID=$(head /dev/urandom | tr -dc a-f0-9 | head -c 16)
-          adb -s 127.0.0.1:5555 shell "settings put secure android_id $RANDOM_ID" || true
-          echo "Device identity spoofing complete. Android ID: $RANDOM_ID"
-
-      - name: 6. Start WebRTC / Scrcpy Stream Server & Tunneling
+      - name: 5. Start Tunneling & Display URL
         run: |
           echo "Starting ngrok TCP Tunnel on port 5555..."
           ngrok tcp 5555 --log=stdout > ngrok.log &
@@ -73,7 +57,7 @@ jobs:
           echo " $NGROK_URL"
           echo "=================================================="
 
-      - name: 7. Keep Cloud Phone Alive (Max 6 Hours)
+      - name: 6. Keep Cloud Phone Alive (Max 6 Hours)
         run: |
           echo "Android Cloud Phone is now live and running!"
           sleep 21600
