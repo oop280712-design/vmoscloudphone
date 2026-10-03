@@ -82,6 +82,51 @@
                     <button class="btn btn-danger" onclick="rebootDevice()"><i class="fa-solid fa-rotate-right"></i> รีสตาร์ท</button>
                 </div>
             </div>
+
+                    <div class="pkg-grid">
+            <!-- Package 1: Starter Cloud -->
+            <div class="pkg-card">
+                <div class="pkg-badge">เริ่มต้น</div>
+                <h3>Standard Cloud</h3>
+                <div class="pkg-price">ฟรี <span>/ 2 ชั่วโมง</span></div>
+                <ul class="pkg-features">
+                    <li><i class="fa-solid fa-microchip"></i> <b>CPU:</b> 2 Cores</li>
+                    <li><i class="fa-solid fa-memory"></i> <b>RAM:</b> 4 GB</li>
+                    <li><i class="fa-solid fa-hard-drive"></i> <b>Storage:</b> 32 GB</li>
+                    <li><i class="fa-solid fa-clock"></i> รันต่อเนื่องสูงสุด 2 ชม.</li>
+                </ul>
+                <button class="btn-pkg" onclick="selectPackage('Standard Cloud (2 CPU / 4GB)', 2)">เลือกใช้งาน</button>
+            </div>
+
+            <!-- Package 2: VIP GitHub Runner -->
+            <div class="pkg-card popular">
+                <div class="pkg-badge popular-badge">ยอดนิยม</div>
+                <h3>GitHub VIP Plan</h3>
+                <div class="pkg-price">ฟรี <span>/ 6 ชั่วโมง</span></div>
+                <ul class="pkg-features">
+                    <li><i class="fa-solid fa-microchip"></i> <b>CPU:</b> 16 Cores</li>
+                    <li><i class="fa-solid fa-memory"></i> <b>RAM:</b> 32 GB</li>
+                    <li><i class="fa-solid fa-hard-drive"></i> <b>Storage:</b> 128 GB</li>
+                    <li><i class="fa-solid fa-bolt"></i> KVM Acceleration Enabled</li>
+                </ul>
+                <button class="btn-pkg popular-btn" onclick="selectPackage('GitHub VIP (16 CPU / 32GB)', 6)">เลือกแพ็กเกจนี้</button>
+            </div>
+
+            <!-- Package 3: MONSTER CLOUD (แพ็กเกจสูงสุดที่คุณต้องการ) -->
+            <div class="pkg-card monster">
+                <div class="pkg-badge monster-badge"><i class="fa-solid fa-fire"></i> MAX SPEC</div>
+                <h3>Ultra Monster Cloud</h3>
+                <div class="pkg-price">MAX <span>/ ไม่จำกัด</span></div>
+                <ul class="pkg-features">
+                    <li><i class="fa-solid fa-microchip highlight"></i> <b>CPU:</b> 1024 vCPU</li>
+                    <li><i class="fa-solid fa-memory highlight"></i> <b>RAM:</b> 500 GB System RAM</li>
+                    <li><i class="fa-solid fa-hard-drive highlight"></i> <b>Storage:</b> 10 TB NVMe Enterprise</li>
+                    <li><i class="fa-solid fa-gamepad"></i> รองรับการเปิดบอท Multi-Instance ไม่จำกัดจอ</li>
+                </ul>
+                <button class="btn-pkg monster-btn" onclick="selectPackage('Ultra Monster (1024 CPU / 500GB)', 24)">เปิดใช้งานแพ็กเกจสูงสุด</button>
+            </div>
+        </div>
+
         </section>
     </main>
 
