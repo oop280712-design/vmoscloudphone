@@ -49,19 +49,21 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y android-tools-adb
           echo "Waiting for Android container to initialize..."
-          sleep 15
+          sleep 30
           adb connect 127.0.0.1:5555 || true
+          adb wait-for-device || true
+          sleep 5
 
       - name: 5.1 Spoof Device Identity (Samsung S23 Ultra)
         run: |
-          adb shell "setprop ro.product.model 'SM-S918B'"
-          adb shell "setprop ro.product.brand 'samsung'"
-          adb shell "setprop ro.product.name 'e3q'"
-          adb shell "setprop ro.product.device 'e3q'"
-          adb shell "setprop ro.product.manufacturer 'samsung'"
+          adb shell "setprop ro.product.model 'SM-S918B'" || true
+          adb shell "setprop ro.product.brand 'samsung'" || true
+          adb shell "setprop ro.product.name 'e3q'" || true
+          adb shell "setprop ro.product.device 'e3q'" || true
+          adb shell "setprop ro.product.manufacturer 'samsung'" || true
           RANDOM_ID=$(head /dev/urandom | tr -dc a-f0-9 | head -c 16)
-          adb shell "settings put secure android_id $RANDOM_ID"
-          echo "Device identity spoofed successfully. New Android ID: $RANDOM_ID"
+          adb shell "settings put secure android_id $RANDOM_ID" || true
+          echo "Device identity spoofing attempted. Android ID: $RANDOM_ID"
 
       - name: 6. Start WebRTC / Scrcpy Stream Server & Tunneling
         run: |
@@ -79,3 +81,4 @@ jobs:
         run: |
           echo "Android Cloud Phone is now live and running!"
           sleep 21600
+          
