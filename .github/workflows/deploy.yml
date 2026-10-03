@@ -21,10 +21,8 @@ jobs:
       - name: 1. Checkout Code
         uses: actions/checkout@v4
 
-      - name: 2. Install Dependencies & Kernel Modules
+      - name: 2. Load Kernel Modules
         run: |
-          sudo apt update
-          sudo apt install -y linux-modules-extra-$(uname -r) curl
           sudo modprobe ashmem_linux || true
           sudo modprobe binder_linux devices="binder,hwbinder,vndbinder" || true
 
@@ -49,7 +47,7 @@ jobs:
 
       - name: 5. Wait for Android to Boot & Connect ADB
         run: |
-          sudo apt install -y android-tools-adb
+          sudo apt update && sudo apt install -y android-tools-adb
           echo "Waiting for Android container to initialize..."
           sleep 15
           adb connect 127.0.0.1:5555 || true
