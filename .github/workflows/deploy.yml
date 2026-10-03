@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       android_version:
-        description: 'เลือกเวอร์ชัน Android'
+        description: 'Android Version'
         required: true
         default: '11.0.0'
         type: choice
@@ -23,86 +23,63 @@ jobs:
 
       - name: 2. Install Dependencies & Kernel Modules
         run: |
-          sudo apt-get update
-          sudo apt-get install -y linux-modules-extra-$(uname -r) adb net-tools curl openssl
+          sudo apt update
+          sudo apt install -y linux-modules-extra-$(uname -r) docker.io curl
           sudo modprobe ashmem_linux || true
           sudo modprobe binder_linux devices="binder,hwbinder,vndbinder" || true
 
       - name: 3. Set up ngrok Authtoken
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
         run: |
-          curl -s https://bin.equinox.io/c/b4PvuB3xmW/ngrok-v3-stable-linux-amd64.tgz | tar -xz -C /tmp
-          sudo mv /tmp/ngrok /usr/local/bin/
-          if [ -n "$NGROK_AUTH_TOKEN" ]; then
-            ngrok config add-authtoken $NGROK_AUTH_TOKEN
-          else
-            echo "Warning: NGROK_AUTH_TOKEN secret is missing!"
-          fi
+          curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
+          sudo apt update && sudo apt install ngrok -y
+          ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
 
-      - name: 4. Launch ReDroid Container (Android Device)
+      - name: 4. Launch ReDroid Container (Android Cloud Phone)
         run: |
-          echo "Starting ReDroid Android ${{ github.event.inputs.android_version }}..."
           docker run -d --privileged \
-            --name redroid_android \
-            -v /data/redroid:/data \
+            --name redroid \
+            -v /data/android:/data \
             -p 5555:5555 \
             redroid/redroid:${{ github.event.inputs.android_version }}-latest \
-            androidboot.redroid_width=720 \
-            androidboot.redroid_height=1280 \
-            androidboot.redroid_dpi=320 \
-            androidboot.redroid_fps=60
+            androidboot.hardware=redroid \
+            redroid.width=720 \
+            redroid.height=1280 \
+            redroid.fps=60
 
       - name: 5. Wait for Android to Boot & Connect ADB
         run: |
-          echo "Waiting for Android container to fully boot..."
+          sudo apt install -y android-tools-adb
+          echo "Waiting for Android container to initialize..."
           sleep 15
-          adb connect localhost:5555
-          adb devices
+          adb connect 127.0.0.1:5555 || true
 
       - name: 5.1 Spoof Device Identity (Samsung S23 Ultra)
         run: |
-          echo "Configuring fake hardware identity..."
-          # ปลอมแปลงแบรนด์ รุ่น และข้อมูลผู้ผลิตให้เป็น Samsung S23 Ultra
           adb shell "setprop ro.product.model 'SM-S918B'"
           adb shell "setprop ro.product.brand 'samsung'"
+          adb shell "setprop ro.product.name 'e3q'"
+          adb shell "setprop ro.product.device 'e3q'"
           adb shell "setprop ro.product.manufacturer 'samsung'"
-          adb shell "setprop ro.product.device 'dm3q'"
-          adb shell "setprop ro.build.fingerprint 'samsung/dm3qxxx/dm3q:13/TP1A.220624.014/S918BXXU1AWA6:user/release-keys'"
-          
-          # สุ่มเลข Android ID ประจำเครื่อง
-          RANDOM_ID=$(openssl rand -hex 8)
+          # Randomize Android ID
+          RANDOM_ID=$(head /dev/urandom | tr -dc a-f0-9 | head -c 16)
           adb shell "settings put secure android_id $RANDOM_ID"
-          
-          # ปลอมแปลงสถานะซิมการ์ด (Telephony)
-          adb shell "setprop gsm.sim.state 'READY'"
-          adb shell "setprop gsm.operator.alpha 'AIS'"
-          echo "Device spoofing completed successfully!"
+          echo "Device identity spoofed successfully. New Android ID: $RANDOM_ID"
 
       - name: 6. Start WebRTC / Scrcpy Stream Server & Tunneling
         run: |
-          echo "===================================================="
-          echo "Starting ngrok tunnel for Android Stream..."
-          echo "===================================================="
-          
-          # สร้าง ngrok tunnel เชื่อมต่อไปยัง พอร์ต Android / Web Server
-          ngrok http 5555 --log=stdout > ngrok.log &
+          echo "Starting ngrok TCP Tunnel on port 5555..."
+          ngrok tcp 5555 --log=stdout > ngrok.log &
           sleep 5
-
-          # ดึง Public URL จาก ngrok
-          NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o 'https://[^"]*' | head -n 1)
           
-          echo ""
-          echo "===================================================="
-          echo "       YOUR CLOUD PHONE NGROK STREAM URL            "
-          echo "===================================================="
-          echo "URL: $NGROK_URL"
-          echo "นำ URL ด้านบนไปวางใส่ในช่อง ngrok URL บนเว็บ VMOS Console"
-          echo "===================================================="
-          echo ""
+          NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o 'tcp://[^"]*' | head -n 1)
+          echo "=================================================="
+          echo " VMOS Cloud Phone Stream URL:"
+          echo " $NGROK_URL"
+          echo "=================================================="
 
       - name: 7. Keep Cloud Phone Alive (Max 6 Hours)
         run: |
-          echo "Cloud Phone is now running..."
-          # หน่วงเวลาให้ Runner ทำงานต่อเนื่อง
+          echo "Android Cloud Phone is now live and running!"
+          # Keep container active for GitHub Actions runtime limit
           sleep 21600
