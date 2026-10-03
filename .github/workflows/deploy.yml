@@ -12,6 +12,16 @@ on:
           - '11.0.0'
           - '12.0.0'
           - '10.0.0'
+      keep_alive_time:
+        description: 'Select Run Duration (Max 6 Hours)'
+        required: true
+        default: '21600'
+        type: choice
+        options:
+          - '3600'   # 1 ชั่วโมง
+          - '7200'   # 2 ชั่วโมง
+          - '14400'  # 4 ชั่วโมง
+          - '21600'  # 6 ชั่วโมง
 
 jobs:
   build-and-run:
@@ -26,14 +36,7 @@ jobs:
           sudo modprobe ashmem_linux || true
           sudo modprobe binder_linux devices="binder,hwbinder,vndbinder" || true
 
-      - name: 3. Set up ngrok Authtoken
-        run: |
-          curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
-          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-          sudo apt update && sudo apt install ngrok -y
-          ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
-
-      - name: 4. Launch ReDroid Container (Android Cloud Phone)
+      - name: 3. Launch ReDroid Container (Android Cloud Phone)
         run: |
           docker run -d --privileged \
             --name redroid \
@@ -45,19 +48,18 @@ jobs:
             redroid.height=1280 \
             redroid.fps=60
 
-      - name: 5. Start Tunneling & Display URL
+      - name: 4. Start Tunneling & Display URL (Pinggy)
         run: |
-          echo "Starting ngrok TCP Tunnel on port 5555..."
-          ngrok tcp 5555 --log=stdout > ngrok.log &
+          echo "Starting Pinggy TCP Tunnel on port 5555..."
+          ssh -p 443 -R0:localhost:5555 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 qr@a.pinggy.io > tunnel.log 2>&1 &
           sleep 5
           
-          NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o 'tcp://[^"]*' | head -n 1)
           echo "=================================================="
-          echo " VMOS Cloud Phone Stream URL:"
-          echo " $NGROK_URL"
+          echo " VMOS Cloud Phone Stream Connection:"
+          cat tunnel.log | grep -E "tcp://" || cat tunnel.log
           echo "=================================================="
 
-      - name: 6. Keep Cloud Phone Alive (Max 6 Hours)
+      - name: 5. Keep Cloud Phone Alive
         run: |
-          echo "Android Cloud Phone is now live and running!"
-          sleep 21600
+          echo "Android Cloud Phone is running for ${{ github.event.inputs.keep_alive_time }} seconds..."
+          sleep ${{ github.event.inputs.keep_alive_time }}
