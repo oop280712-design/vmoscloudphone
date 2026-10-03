@@ -24,7 +24,7 @@ jobs:
       - name: 2. Install Dependencies & Kernel Modules
         run: |
           sudo apt update
-          sudo apt install -y linux-modules-extra-$(uname -r) docker.io curl
+          sudo apt install -y linux-modules-extra-$(uname -r) curl
           sudo modprobe ashmem_linux || true
           sudo modprobe binder_linux devices="binder,hwbinder,vndbinder" || true
 
@@ -61,7 +61,6 @@ jobs:
           adb shell "setprop ro.product.name 'e3q'"
           adb shell "setprop ro.product.device 'e3q'"
           adb shell "setprop ro.product.manufacturer 'samsung'"
-          # Randomize Android ID
           RANDOM_ID=$(head /dev/urandom | tr -dc a-f0-9 | head -c 16)
           adb shell "settings put secure android_id $RANDOM_ID"
           echo "Device identity spoofed successfully. New Android ID: $RANDOM_ID"
@@ -81,5 +80,4 @@ jobs:
       - name: 7. Keep Cloud Phone Alive (Max 6 Hours)
         run: |
           echo "Android Cloud Phone is now live and running!"
-          # Keep container active for GitHub Actions runtime limit
           sleep 21600
