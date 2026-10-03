@@ -1,1 +1,129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VMOS Cloud Console</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar Menu -->
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="fa-solid fa-cloud"></i>
+            <span>VMOS <b>CLOUD</b></span>
+        </div>
+        <nav class="menu">
+            <a href="#" class="active"><i class="fa-solid fa-mobile-screen-button"></i> อุปกรณ์ของฉัน</a>
+            <a href="#"><i class="fa-solid fa-store"></i> ร้านค้า Cloud Phone</a>
+            <a href="#"><i class="fa-solid fa-credit-card"></i> เติมเงิน / แพ็กเกจ</a>
+            <a href="#"><i class="fa-solid fa-gear"></i> ตั้งค่าระบบ</a>
+        </nav>
+        <div class="user-profile">
+            <i class="fa-solid fa-circle-user"></i>
+            <div>
+                <p class="u-name">VIP User</p>
+                <span class="u-status">Standard Plan</span>
+            </div>
+        </div>
+    </aside>
 
+    <!-- Main Content -->
+    <main class="content">
+        <header class="topbar">
+            <h2><i class="fa-solid fa-server"></i> จัดการ Cloud Phone</h2>
+            <div class="topbar-actions">
+                <span class="badge online"><i class="fa-solid fa-circle"></i> GitHub Runner: Active</span>
+            </div>
+        </header>
+
+        <!-- Phone Card Section -->
+        <section class="device-grid">
+            <div class="vmos-card">
+                <div class="card-head">
+                    <div class="dev-info">
+                        <i class="fa-brands fa-android android-icon"></i>
+                        <div>
+                            <h4>VMOS-Android-11</h4>
+                            <span class="dev-id">ID: cloud-dev-01</span>
+                        </div>
+                    </div>
+                    <span class="status-tag running" id="statusTag">RUNNING</span>
+                </div>
+
+                <!-- Input ngrok URL -->
+                <div class="url-bar">
+                    <input type="text" id="ngrokUrl" placeholder="วาง URL ngrok (https://xxx.ngrok-free.app)">
+                    <button onclick="saveAndConnect()"><i class="fa-solid fa-plug"></i> เชื่อมต่อ</button>
+                </div>
+
+                <!-- Live Phone Frame -->
+                <div class="phone-frame">
+                    <div class="phone-screen-container" id="screenContainer">
+                        <div class="screen-placeholder" id="placeholder">
+                            <i class="fa-solid fa-power-off"></i>
+                            <p>กรุณาวาง URL ngrok ด้านบนแล้วกดเชื่อมต่อ</p>
+                        </div>
+                        <iframe id="cloudPhoneStream" src="" frameborder="0" allowfullscreen></iframe>
+                    </div>
+
+                    <!-- Android Virtual Navigation Bar -->
+                    <div class="navbar-overlay">
+                        <button onclick="sendKey('back')" title="Back"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button onclick="sendKey('home')" title="Home"><i class="fa-regular fa-circle"></i></button>
+                        <button onclick="sendKey('recent')" title="Recent Apps"><i class="fa-regular fa-square"></i></button>
+                    </div>
+                </div>
+
+                <!-- Footer Control Buttons -->
+                <div class="card-foot">
+                    <button class="btn btn-ctrl" onclick="toggleFullscreen()"><i class="fa-solid fa-expand"></i> ขยายเต็มจอ</button>
+                    <button class="btn btn-danger" onclick="rebootDevice()"><i class="fa-solid fa-rotate-right"></i> รีสตาร์ท</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function saveAndConnect() {
+            const url = document.getElementById('ngrokUrl').value.trim();
+            if(!url) return alert('กรุณากรอก ngrok URL');
+            
+            localStorage.setItem('vmos_stream_url', url);
+            document.getElementById('cloudPhoneStream').src = url;
+            document.getElementById('placeholder').style.display = 'none';
+            document.getElementById('cloudPhoneStream').style.display = 'block';
+            document.getElementById('statusTag').className = 'status-tag running';
+            document.getElementById('statusTag').innerText = 'CONNECTED';
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('screenContainer');
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => alert(err.message));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function sendKey(action) {
+            alert('ส่งคำสั่ง ' + action.toUpperCase() + ' ไปยัง Cloud Phone');
+        }
+
+        function rebootDevice() {
+            if(confirm('ต้องการรีสตาร์ท Cloud Phone หรือไม่?')) {
+                document.getElementById('cloudPhoneStream').src = document.getElementById('cloudPhoneStream').src;
+            }
+        }
+
+        window.onload = function() {
+            const savedUrl = localStorage.getItem('vmos_stream_url');
+            if(savedUrl) {
+                document.getElementById('ngrokUrl').value = savedUrl;
+                saveAndConnect();
+            }
+        }
+    </script>
+</body>
+</html>
