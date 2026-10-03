@@ -45,25 +45,21 @@ jobs:
             redroid.height=1280 \
             redroid.fps=60
 
-      - name: 5. Wait for Android to Boot & Connect ADB
+      - name: 5. Wait for Android & Spoof Device Identity
         run: |
           sudo apt update && sudo apt install -y android-tools-adb
           echo "Waiting for Android container to initialize..."
-          sleep 30
+          sleep 25
           adb connect 127.0.0.1:5555 || true
-          adb wait-for-device || true
           sleep 5
-
-      - name: 5.1 Spoof Device Identity (Samsung S23 Ultra)
-        run: |
-          adb shell "setprop ro.product.model 'SM-S918B'" || true
-          adb shell "setprop ro.product.brand 'samsung'" || true
-          adb shell "setprop ro.product.name 'e3q'" || true
-          adb shell "setprop ro.product.device 'e3q'" || true
-          adb shell "setprop ro.product.manufacturer 'samsung'" || true
+          adb -s 127.0.0.1:5555 shell "setprop ro.product.model 'SM-S918B'" || true
+          adb -s 127.0.0.1:5555 shell "setprop ro.product.brand 'samsung'" || true
+          adb -s 127.0.0.1:5555 shell "setprop ro.product.name 'e3q'" || true
+          adb -s 127.0.0.1:5555 shell "setprop ro.product.device 'e3q'" || true
+          adb -s 127.0.0.1:5555 shell "setprop ro.product.manufacturer 'samsung'" || true
           RANDOM_ID=$(head /dev/urandom | tr -dc a-f0-9 | head -c 16)
-          adb shell "settings put secure android_id $RANDOM_ID" || true
-          echo "Device identity spoofing attempted. Android ID: $RANDOM_ID"
+          adb -s 127.0.0.1:5555 shell "settings put secure android_id $RANDOM_ID" || true
+          echo "Device identity spoofing complete. Android ID: $RANDOM_ID"
 
       - name: 6. Start WebRTC / Scrcpy Stream Server & Tunneling
         run: |
@@ -81,4 +77,3 @@ jobs:
         run: |
           echo "Android Cloud Phone is now live and running!"
           sleep 21600
-          
