@@ -1,1 +1,486 @@
+:root {
+    --bg-dark: #0b0f19;
+    --card-bg: #151c2c;
+    --accent-color: #00d2ff;
+    --accent-blue: #0088ff;
+    --text-main: #e2e8f0;
+    --text-muted: #64748b;
+    --border-color: #2a354d;
+    --purple-main: #a855f7;
+    --pink-main: #ec4899;
+}
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+.page-container {
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* ================= PAGE 1: PACKAGE SELECTION ================= */
+#packagePage {
+    padding: 50px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.pkg-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.pkg-logo {
+    font-size: 50px;
+    color: var(--accent-color);
+    margin-bottom: 15px;
+}
+
+.pkg-header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.pkg-header p {
+    color: var(--text-muted);
+}
+
+.pkg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.pkg-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 30px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.pkg-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-color);
+}
+
+.pkg-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #2a354d;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    color: var(--accent-color);
+}
+
+.pkg-card h3 {
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.pkg-price {
+    font-size: 36px;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.pkg-price span {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: normal;
+}
+
+.pkg-features {
+    list-style: none;
+    margin-bottom: 30px;
+    flex: 1;
+}
+
+.pkg-features li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pkg-features i {
+    color: #4ade80;
+    width: 20px;
+}
+
+.pkg-features i.uncheck {
+    color: #ef4444;
+}
+
+.btn-pkg {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: #2a354d;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-pkg:hover {
+    background: #3b4968;
+}
+
+/* Standard VIP Plan */
+.pkg-card.popular {
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 0 25px rgba(0, 210, 255, 0.2);
+}
+
+.popular-badge {
+    background: var(--accent-color);
+    color: #000;
+    font-weight: bold;
+}
+
+.popular-btn {
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-color));
+    color: #000;
+    border: none;
+}
+
+.popular-btn:hover {
+    opacity: 0.9;
+}
+
+/* Ultra Monster Package (1024 CPU / 500GB RAM) */
+.pkg-card.monster {
+    border: 2px solid var(--purple-main);
+    background: linear-gradient(145deg, #151c2c, #1e112a);
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.25);
+}
+
+.pkg-card.monster:hover {
+    transform: translateY(-8px);
+    border-color: #c084fc;
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
+}
+
+.monster-badge {
+    background: linear-gradient(90deg, #9333ea, var(--pink-main));
+    color: #fff;
+    font-weight: bold;
+}
+
+.highlight {
+    color: #c084fc !important;
+}
+
+.monster-btn {
+    background: linear-gradient(90deg, #7e22ce, #db2777);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 15px rgba(219, 39, 119, 0.3);
+}
+
+.monster-btn:hover {
+    opacity: 0.95;
+    box-shadow: 0 6px 20px rgba(219, 39, 119, 0.5);
+}
+
+/* ================= PAGE 2: VMOS CONSOLE ================= */
+#consolePage {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #0f1623;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.brand {
+    font-size: 20px;
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.menu a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.menu a.active, .menu a:hover {
+    background: rgba(0, 210, 255, 0.1);
+    color: var(--accent-color);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.u-name {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.u-status {
+    font-size: 11px;
+    color: var(--accent-color);
+}
+
+/* Main Content Area */
+.content {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.btn-switch-pkg {
+    background: #2a354d;
+    border: 1px solid var(--border-color);
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.btn-switch-pkg:hover {
+    background: #3b4968;
+}
+
+/* Device Grid & Cards */
+.device-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.vmos-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    width: 360px;
+    padding: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.dev-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.android-icon {
+    font-size: 28px;
+    color: #3ddc84;
+}
+
+.dev-id {
+    font-size: 12px;
+    color: var(--accent-color);
+}
+
+.status-tag.running {
+    background: #059669;
+    color: #fff;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+/* URL Connection Bar */
+.url-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.url-bar input {
+    flex: 1;
+    background: #0b0f19;
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+}
+
+.url-bar input:focus {
+    border-color: var(--accent-color);
+}
+
+.url-bar button {
+    background: var(--accent-blue);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: 0.2s;
+}
+
+.url-bar button:hover {
+    opacity: 0.9;
+}
+
+/* Phone Screen Frame */
+.phone-frame {
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #2a354d;
+}
+
+.phone-screen-container {
+    width: 100%;
+    height: 450px;
+    position: relative;
+}
+
+.screen-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-muted);
+    gap: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.screen-placeholder i {
+    font-size: 40px;
+}
+
+#cloudPhoneStream {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+/* Android Virtual Navigation Bar */
+.navbar-overlay {
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    border-top: 1px solid #1f293d;
+}
+
+.navbar-overlay button {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.navbar-overlay button:hover {
+    color: #fff;
+}
+
+/* Control Footer Buttons */
+.card-foot {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-ctrl {
+    background: #2a354d;
+    color: #fff;
+}
+
+.btn-ctrl:hover {
+    background: #3b4968;
+}
+
+.btn-danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.4);
+}
