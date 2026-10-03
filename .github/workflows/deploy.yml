@@ -24,7 +24,7 @@ jobs:
       - name: 2. Install Dependencies & Kernel Modules
         run: |
           sudo apt-get update
-          sudo apt-get install -y linux-modules-extra-$(uname -r) adb net-tools curl
+          sudo apt-get install -y linux-modules-extra-$(uname -r) adb net-tools curl openssl
           sudo modprobe ashmem_linux || true
           sudo modprobe binder_linux devices="binder,hwbinder,vndbinder" || true
 
@@ -60,6 +60,25 @@ jobs:
           adb connect localhost:5555
           adb devices
 
+      - name: 5.1 Spoof Device Identity (Samsung S23 Ultra)
+        run: |
+          echo "Configuring fake hardware identity..."
+          # ปลอมแปลงแบรนด์ รุ่น และข้อมูลผู้ผลิตให้เป็น Samsung S23 Ultra
+          adb shell "setprop ro.product.model 'SM-S918B'"
+          adb shell "setprop ro.product.brand 'samsung'"
+          adb shell "setprop ro.product.manufacturer 'samsung'"
+          adb shell "setprop ro.product.device 'dm3q'"
+          adb shell "setprop ro.build.fingerprint 'samsung/dm3qxxx/dm3q:13/TP1A.220624.014/S918BXXU1AWA6:user/release-keys'"
+          
+          # สุ่มเลข Android ID ประจำเครื่อง
+          RANDOM_ID=$(openssl rand -hex 8)
+          adb shell "settings put secure android_id $RANDOM_ID"
+          
+          # ปลอมแปลงสถานะซิมการ์ด (Telephony)
+          adb shell "setprop gsm.sim.state 'READY'"
+          adb shell "setprop gsm.operator.alpha 'AIS'"
+          echo "Device spoofing completed successfully!"
+
       - name: 6. Start WebRTC / Scrcpy Stream Server & Tunneling
         run: |
           echo "===================================================="
@@ -85,5 +104,5 @@ jobs:
       - name: 7. Keep Cloud Phone Alive (Max 6 Hours)
         run: |
           echo "Cloud Phone is now running..."
-          # หน่วงเวลาให้ Runner ทำงานต่อเนื่องจนครบรอบการทำงาน
+          # หน่วงเวลาให้ Runner ทำงานต่อเนื่อง
           sleep 21600
