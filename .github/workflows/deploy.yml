@@ -1,1 +1,89 @@
+name: VMOS Cloud Android Runner
 
+on:
+  workflow_dispatch:
+    inputs:
+      android_version:
+        description: 'เลือกเวอร์ชัน Android'
+        required: true
+        default: '11.0.0'
+        type: choice
+        options:
+          - '11.0.0'
+          - '12.0.0'
+          - '10.0.0'
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 2. Install Dependencies & Kernel Modules
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y linux-modules-extra-$(uname -r) adb net-tools curl
+          sudo modprobe ashmem_linux || true
+          sudo modprobe binder_linux devices="binder,hwbinder,vndbinder" || true
+
+      - name: 3. Set up ngrok Authtoken
+        env:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+        run: |
+          curl -s https://bin.equinox.io/c/b4PvuB3xmW/ngrok-v3-stable-linux-amd64.tgz | tar -xz -C /tmp
+          sudo mv /tmp/ngrok /usr/local/bin/
+          if [ -n "$NGROK_AUTH_TOKEN" ]; then
+            ngrok config add-authtoken $NGROK_AUTH_TOKEN
+          else
+            echo "Warning: NGROK_AUTH_TOKEN secret is missing!"
+          fi
+
+      - name: 4. Launch ReDroid Container (Android Device)
+        run: |
+          echo "Starting ReDroid Android ${{ github.event.inputs.android_version }}..."
+          docker run -d --privileged \
+            --name redroid_android \
+            -v /data/redroid:/data \
+            -p 5555:5555 \
+            redroid/redroid:${{ github.event.inputs.android_version }}-latest \
+            androidboot.redroid_width=720 \
+            androidboot.redroid_height=1280 \
+            androidboot.redroid_dpi=320 \
+            androidboot.redroid_fps=60
+
+      - name: 5. Wait for Android to Boot & Connect ADB
+        run: |
+          echo "Waiting for Android container to fully boot..."
+          sleep 15
+          adb connect localhost:5555
+          adb devices
+
+      - name: 6. Start WebRTC / Scrcpy Stream Server & Tunneling
+        run: |
+          echo "===================================================="
+          echo "Starting ngrok tunnel for Android Stream..."
+          echo "===================================================="
+          
+          # สร้าง ngrok tunnel เชื่อมต่อไปยัง พอร์ต Android / Web Server
+          ngrok http 5555 --log=stdout > ngrok.log &
+          sleep 5
+
+          # ดึง Public URL จาก ngrok
+          NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o 'https://[^"]*' | head -n 1)
+          
+          echo ""
+          echo "===================================================="
+          echo "       YOUR CLOUD PHONE NGROK STREAM URL            "
+          echo "===================================================="
+          echo "URL: $NGROK_URL"
+          echo "นำ URL ด้านบนไปวางใส่ในช่อง ngrok URL บนเว็บ VMOS Console"
+          echo "===================================================="
+          echo ""
+
+      - name: 7. Keep Cloud Phone Alive (Max 6 Hours)
+        run: |
+          echo "Cloud Phone is now running..."
+          # หน่วงเวลาให้ Runner ทำงานต่อเนื่องจนครบรอบการทำงาน
+          sleep 21600
